@@ -96,7 +96,6 @@ function Login() {
           <Input
             {...register("password", {
               required: "Password is required.",
-
             })}
             type="password"
             placeholder="Password"
