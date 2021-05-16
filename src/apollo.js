@@ -1,5 +1,5 @@
-import { ApolloClient, createHttpLink, InMemoryCache, makeVar, from } from "@apollo/client";
-import { onError } from "@apollo/client/link/error";
+import { ApolloClient, createHttpLink, InMemoryCache, makeVar } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
 const TOKEN = "TOKEN";
 const DARK_MODE = "DARK_MODE";
@@ -32,18 +32,16 @@ const httpLink = createHttpLink({
   uri: "http://localhost:4000/graphql",
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) =>
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-      ),
-    );
-
-  if (networkError) console.log(`[Network error]: ${networkError}`);
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      ...headers,
+      token: localStorage.getItem(TOKEN),
+    },
+  };
 });
 
 export const client = new ApolloClient({
-  link: from([errorLink, httpLink]),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
