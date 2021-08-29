@@ -1,5 +1,6 @@
 import { ApolloClient, createHttpLink, InMemoryCache, makeVar } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
+import { offsetLimitPagination } from "@apollo/client/utilities";
 
 const TOKEN = "TOKEN";
 const DARK_MODE = "DARK_MODE";
@@ -47,6 +48,9 @@ export const client = new ApolloClient({
     typePolicies: {
       User: {
         keyFields: (obj) => `User:${obj.username}`,
+      },
+      fields: {
+        seeFeed: offsetLimitPagination(),
       },
     },
   }),

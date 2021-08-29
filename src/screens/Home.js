@@ -6,8 +6,8 @@ import { COMMENT_FRAGMENT, PHOTO_FRAGMENT } from "../fragments";
 import { logUserOut } from "../apollo";
 
 const FEED_QUERY = gql`
-  query seeFeed {
-    seeFeed {
+  query seeFeed($offset: Int!) {
+    seeFeed(offset: $offset) {
       ...PhotoFragment
       user {
         username
@@ -26,16 +26,28 @@ const FEED_QUERY = gql`
 `;
 
 function Home() {
-  const { data } = useQuery(FEED_QUERY);
+  const { data, fetchMore } = useQuery(FEED_QUERY, {
+    variables: {
+      offset: 0,
+    },
+  });
   return (
     <div>
       <PageTitle title="Home" />
 
       <h1>Welcome we did it!</h1>
       <button onClick={() => logUserOut()}>Log out now!</button>
-      
+
       {data?.seeFeed?.map((photo) => (
-        <Photo key={photo.id} {...photo} />
+        <Photo
+          key={photo.id}
+          onLoadMore={() => fetchMore({
+            variables: {
+              offset: data?.feed?.length,
+            },
+          })}
+          {...photo}
+        />
       ))}
     </div>
   );
